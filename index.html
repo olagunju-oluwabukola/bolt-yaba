@@ -82,6 +82,8 @@ h2{font-family:var(--hd);font-size:clamp(28px,5vw,42px);letter-spacing:-.03em;ma
 .band{background:var(--acc);color:var(--onacc);border-radius:24px;padding:36px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
 .band h2{margin:0}.band .btn{background:var(--onacc);color:var(--acc)}
 footer{padding:30px 0 50px;color:var(--mut);font-size:14px;margin-top:30px;border-top:1px solid var(--line)}
+.flogo{height:84px;width:auto;display:block}
+@media (max-width:760px){.flogo{height:68px}}
 dialog{border:0;border-radius:22px;padding:0;width:calc(100% - 32px);max-width:440px;max-height:calc(100% - 32px);overflow:auto;background:var(--card);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.35)}
 dialog#reg{max-width:720px}
 dialog.wide{width:auto;min-width:min(320px,calc(100% - 32px));max-width:calc(100% - 32px)}
@@ -94,6 +96,14 @@ form .full{grid-column:1/-1}
 label{font-weight:600;font-size:14px;display:grid;gap:6px;align-content:start}
 input,select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;width:100%}
 select{appearance:auto;cursor:pointer}
+fieldset.chk{border:0;padding:0;margin:0;min-width:0}
+.chk legend{font-weight:600;font-size:14px;padding:0;margin-bottom:8px}
+.chk .hint{font-weight:400;color:var(--mut)}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+label.opt{display:flex;align-items:center;gap:8px;font-weight:500;padding:10px 12px;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;cursor:pointer}
+label.opt input{width:18px;height:18px;padding:0;margin:0;flex:none;accent-color:#14140f}
+label.opt:has(input:checked){background:var(--acc);border-color:var(--ink)}
+label.opt:has(input:focus-visible){outline:3px solid var(--ink);outline-offset:2px}
 input[disabled]{opacity:.7;cursor:not-allowed}
 .err{color:#c0392b;font-size:14px;min-height:1.2em;margin:0}
 .chip{display:inline-block;background:var(--c);color:#14140f;font:700 12px var(--hd);padding:4px 12px;border-radius:99px;letter-spacing:.08em;text-transform:uppercase}
@@ -181,7 +191,7 @@ input[disabled]{opacity:.7;cursor:not-allowed}
 -->
 
 <section><div class="band"><div><h2>Ready to play?</h2><div>Sign up and get your team in seconds.</div></div><button class="btn" data-reg type="button">Register</button></div></section>
-<footer>Bolt</footer></main>
+<footer><img class="flogo" src="logo.png" alt="Bolt" onerror="this.remove()"></footer></main>
 
 <dialog id="reg" aria-labelledby="rt"><div class="dlg">
 <button class="x" data-close type="button" aria-label="Close">×</button>
@@ -193,10 +203,21 @@ input[disabled]{opacity:.7;cursor:not-allowed}
 <label>Faculty<input id="faculty" maxlength="80" placeholder="e.g. Science" required></label>
 <label>Level<select id="level" required><option value="">Select your level</option><option>100 Level</option><option>200 Level</option><option>300 Level</option><option>400 Level</option><option>500 Level</option><option>600 Level</option></select></label>
 <label>Hostel / Off-campus area<input id="hostel" maxlength="100" placeholder="e.g. Hall 3, or Off-campus: Yaba" required></label>
-<label>Event of interest<select id="event" required><option value="">Select an event</option><option>Athletics</option><option>Football</option><option>Dance</option><option>Presentation</option><option>Support</option></select></label>
-<label>How did you hear about Bolt?<select id="heard" required><option value="">Select one</option><option>Flyer</option><option>Social media</option><option>From a friend</option><option>WhatsApp group</option></select></label>
-<label>Emergency contact name<input id="emname" autocomplete="off" maxlength="80" placeholder="e.g. Mrs Ada" required></label>
-<label>Emergency contact phone<input id="emphone" type="tel" inputmode="tel" autocomplete="off" placeholder="0803 456 7890" required></label>
+<fieldset class="chk full"><legend>Events of interest <span class="hint">(select all that apply)</span></legend><div class="opts" id="eventopts">
+<label class="opt"><input type="checkbox" value="Football">Football</label>
+<label class="opt"><input type="checkbox" value="100 Meters Race">100 Meters Race</label>
+<label class="opt"><input type="checkbox" value="400 Meters Race">400 Meters Race</label>
+<label class="opt"><input type="checkbox" value="Tug of War">Tug of War</label>
+<label class="opt"><input type="checkbox" value="Sack Race">Sack Race</label>
+<label class="opt"><input type="checkbox" value="Egg Race">Egg Race</label>
+<label class="opt"><input type="checkbox" value="Chess">Chess</label>
+<label class="opt"><input type="checkbox" value="Scrabble">Scrabble</label>
+<label class="opt"><input type="checkbox" value="Ludo">Ludo</label>
+<label class="opt"><input type="checkbox" value="Dance Competition">Dance Competition</label>
+<label class="opt"><input type="checkbox" value="Eating Competition">Eating Competition</label>
+<label class="opt"><input type="checkbox" value="Cheerleading">Cheerleading</label>
+</div></fieldset>
+<label class="full">How did you hear about Bolt?<select id="heard" required><option value="">Select one</option><option>Flyer</option><option>Social media</option><option>From a friend</option><option>WhatsApp group</option></select></label>
 <p class="err full" id="err" role="alert"></p>
 <button class="btn full" id="go" type="submit">Register</button></form></div>
 <div id="result" class="res" hidden></div></div></dialog>
@@ -215,12 +236,12 @@ var TEAMS=[
  {n:"Gators",c:"#22c55e",e:"🐊",logo:"img/gator-logo.png",wa:"https://chat.whatsapp.com/LHrB8lp5D6p4cPBXaPHzD8?s=sw&p=i&mlu=4&ilr=4&iam=2"}];
 /* Games: pictures are looked up in img/games/. Past-event videos: put bolt1.mp4 to bolt4.mp4 next to this page. */
 var GAMES=[
- {n:"Football",e:"⚽",f:"football",d:"Fast-paced matches where team coordination meets individual flair. Show the crowd what your squad is made of."},
- {n:"Volleyball",e:"🏐",f:"volleyball",d:"Spike, set and serve your way to the top. Quick reflexes and real teamwork win the rally."},
- {n:"Basketball",e:"🏀",f:"basketball",d:"Fast runs to settle the score. Who has the handles, the hops and the heart to take the win?"},
  {n:"Chess",e:"♟️",f:"chess",d:"Think three moves ahead and outmaneuver your opponent in this timeless game of strategy."},
  {n:"Board Games",e:"🎲",f:"board-games",d:"Classic titles and chaotic fun, from Ludo to Scrabble. Wits and luck are both welcome."},
- {n:"PlayStation",e:"🎮",f:"playstation",d:"Controllers in hand and bragging rights on the line. Head-to-head battles crown the digital champion."}];
+ {n:"Table Tennis",e:"🏓",f:"table-tennis",d:"Quick feet, sharp spins and nonstop rallies. Take the table and serve your team to victory."},
+ {n:"Sack Race",e:"🏃",f:"sack-race",d:"Hop, tumble and race to the line. The funniest, fastest way to score points for your team."},
+ {n:"Tug of War",e:"🪢",f:"tug-of-war",d:"Dig in, pull together and hold the line. Pure team strength decides who takes the rope."},
+ {n:"PS5",e:"🎮",f:"playstation",d:"Controllers in hand and bragging rights on the line. Head-to-head battles crown the digital champion."}];
 var VIDEOS=["bolt1.mp4","bolt2.mp4","bolt3.mp4","bolt4.mp4"];
 var $=function(s){return document.querySelector(s)};
 function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
@@ -244,7 +265,7 @@ sec.addEventListener("touchend",function(){setTimeout(play,4000)});
 play();
 */
 
-
+/* Team logos: put each logo PNG in an img folder next to this page, named as in TEAMS (logo:). */
 function logoEl(t){var w=el("div","lg");var i=new Image();i.alt=t.n;i.onerror=function(){w.innerHTML="";w.textContent=t.e;w.classList.add("em")};i.src=t.logo;w.appendChild(i);return w}
 var io=("IntersectionObserver" in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.15}):{observe:function(n){n.classList.add("in")}};
 var ts=$("#tshow");
@@ -326,9 +347,7 @@ $("#form").addEventListener("submit",function(e){
   faculty:$("#faculty").value.trim(),
   level:$("#level").value,
   hostel:$("#hostel").value.trim(),
-  event:$("#event").value,
-  emergencyName:$("#emname").value.trim().replace(/\s+/g," "),
-  emergencyPhone:normPhone($("#emphone").value),
+  event:Array.prototype.map.call(document.querySelectorAll("#eventopts input:checked"),function(c){return c.value}).join(", "),
   heard:$("#heard").value};
  if(data.name.length<2){err.textContent="Please enter your full name.";return}
  if(!data.phone){err.textContent="Please enter a valid Nigerian phone number.";return}
@@ -336,10 +355,8 @@ $("#form").addEventListener("submit",function(e){
  if(data.faculty.length<2){err.textContent="Please enter your faculty.";return}
  if(!data.level){err.textContent="Please select your level.";return}
  if(data.hostel.length<2){err.textContent="Please enter your hostel or off-campus area.";return}
- if(!data.event){err.textContent="Please select an event of interest.";return}
+ if(!data.event){err.textContent="Please select at least one event.";return}
  if(!data.heard){err.textContent="Please tell us how you heard about Bolt.";return}
- if(data.emergencyName.length<2){err.textContent="Please enter your emergency contact's name.";return}
- if(!data.emergencyPhone){err.textContent="Please enter a valid phone number for your emergency contact.";return}
  var b=$("#go");b.disabled=true;b.textContent="Registering…";
  assign(data).then(function(t){show(data.name,t)}).catch(function(){err.textContent="Something went wrong. Please try again."})
  .then(function(){b.disabled=false;b.textContent="Register"})});
