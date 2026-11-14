@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bolt – 4 teams. 1 winner.</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbfaf4;--card:#fff;--ink:#14140f;--mut:#55554c;--line:#e5e3d6;--acc:#ffd400;--onacc:#14140f;--hd:"Space Grotesk",system-ui,sans-serif;--bd:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+canvas#bg{position:fixed;inset:0;width:100%;height:100%;z-index:-1;background:linear-gradient(135deg,#fff7c2,#ffe3d1 40%,#d9f5e8 72%,#d6eaff)}
+
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+*,*::before,*::after{box-sizing:border-box}
+/* FIX: clip sideways overflow at the page level (body), not inside the padded <main>,
+   so the sliding logos are never cut off by main's edge. */
+body{margin:0;background:transparent;color:var(--ink);font-family:var(--bd);line-height:1.55;-webkit-text-size-adjust:100%;overflow-x:clip}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+/* FIX: removed duplicate safe-area padding (already applied on :root) */
+header.top{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.72);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav{display:flex;justify-content:space-between;align-items:center;height:78px;font-family:var(--hd);font-weight:700}
+nav .links{display:flex;align-items:center;gap:22px}
+nav a{color:var(--ink);text-decoration:none;font-size:15px;font-weight:500}
+.logo{font-size:28px;letter-spacing:-.02em;display:flex;align-items:center;text-shadow:0 2px 8px rgba(0,0,0,.35)}.logo b{background:var(--acc);color:var(--onacc);padding:0 .3em;border-radius:6px;margin-right:.1em}
+.logo img{height:56px;width:auto;display:block;filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 4px 8px rgba(0,0,0,.5)) drop-shadow(0 10px 18px rgba(0,0,0,.3))}
+.btn{display:inline-block;border:0;background:var(--acc);color:var(--onacc);font:700 16px var(--hd);padding:14px 26px;border-radius:12px;cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(.95)}.btn.sm{padding:10px 18px;font-size:15px}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.btn[disabled]{opacity:.6;cursor:wait}
+:is(.btn,input,select,button,a):focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;padding:56px 0 48px}
+.eyebrow{font:700 13px var(--hd);letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+h1{font-family:var(--hd);font-size:clamp(44px,8vw,84px);line-height:.98;letter-spacing:-.04em;margin:.2em 0 .3em}
+h1 mark{background:var(--acc);color:var(--onacc);padding:0 .12em;border-radius:.12em}
+.lead{font-size:19px;color:var(--mut);max-width:30em;margin:0 0 24px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.myteam{margin-top:22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--card);border:2px solid var(--c,var(--ink));border-radius:20px;padding:12px 20px 12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.12);max-width:460px}
+.myteam[hidden]{display:none}
+.myteam .lg{width:76px;flex:none}
+.myteam .mt{flex:1;min-width:150px}
+.myteam .k{font:700 12px var(--hd);letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.myteam .n{font:700 30px var(--hd);letter-spacing:-.03em;line-height:1.1;margin:2px 0 8px}
+.pic{position:relative}
+.pic::before{content:"";position:absolute;inset:18px -14px -14px 18px;background:var(--acc);border-radius:28px;transform:rotate(2deg)}
+.pic img{position:relative;display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:28px}
+.pic .tag{position:absolute;left:-10px;bottom:24px;background:var(--ink);color:var(--bg);font:700 14px var(--hd);padding:10px 16px;border-radius:12px}
+section{padding:44px 0}
+h2{font-family:var(--hd);font-size:clamp(28px,5vw,42px);letter-spacing:-.03em;margin:0 0 .25em}
+.sub{color:var(--mut);margin:0 0 24px}
+/* FIX: smaller slide distance so logos never travel far outside their column */
+.rv{opacity:0;transform:translateX(-40px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}.rv.r{transform:translateX(40px)}.rv.in{opacity:1;transform:none}
+.tshow{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative;overflow:visible}
+.lg{display:grid;place-items:center;aspect-ratio:1}.lg img{width:100%;max-width:230px;height:auto;max-height:100%;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.2))}.lg.em{font-size:96px}.lg.rl{width:170px;margin:8px auto 4px}
+.tshow .lg.me{background:rgba(255,255,255,.65);box-shadow:0 0 0 4px var(--c);border-radius:26px}
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:20px}
+.gc{position:relative;overflow:hidden;border-radius:24px;padding:26px;background:linear-gradient(160deg,#0b0524,#1f1048);border:1px solid rgba(170,130,255,.3);color:#fff;min-height:290px;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
+.gc:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(60,20,140,.38)}
+.gc .gi{width:112px;height:112px;display:grid;place-items:center;font-size:80px;line-height:1;margin-bottom:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.5));transition:transform .3s}
+.gc:hover .gi{transform:scale(1.1) rotate(-5deg)}
+.gc .gi img{width:100%;height:100%;object-fit:contain}
+.gc h3{font:700 27px Orbitron,var(--hd);margin:22px 0 8px}
+.gc p{margin:0;color:#d3cbef;font-size:16px;line-height:1.6}
+.gc::before,.gc::after{content:"";position:absolute;border-radius:50%;background:#e879f9;animation:fl 7s ease-in-out infinite}
+.gc::before{width:12px;height:12px;top:40px;right:60px}.gc::after{width:8px;height:8px;top:120px;right:30px;animation-delay:-3s;opacity:.7}
+@keyframes fl{50%{transform:translate(-14px,16px)}}
+@keyframes marq{to{transform:translateX(-50%)}}
+.shead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.sp-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 2px;margin-top:22px}
+.sp-track::-webkit-scrollbar{display:none}
+.sp{flex:0 0 calc((100% - 48px)/4);scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:18px;min-height:130px;display:grid;place-items:center;padding:18px;text-decoration:none;color:var(--ink)}
+.sp img{max-width:100%;max-height:94px;object-fit:contain}.sp span{font:700 16px var(--hd);color:var(--mut);text-align:center}
+.sp-nav{display:flex;gap:10px}
+.sp-nav button{width:46px;height:46px;border-radius:50%;border:2px solid var(--ink);background:transparent;color:var(--ink);font-size:22px;line-height:1;cursor:pointer}
+.sp-nav button:hover{background:var(--acc)}
+@media (max-width:900px){.sp{flex-basis:calc((100% - 16px)/2)}}@media (max-width:520px){.sp{flex-basis:78%}}
+.vids{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media (max-width:560px){.vids{grid-template-columns:1fr}}
+.vid{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:block}
+.vid:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.vid .th{aspect-ratio:16/9;background:linear-gradient(135deg,#14140f,#3a3a2c);display:grid;place-items:center;position:relative}
+.vid .th video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.play{position:relative;width:64px;height:64px;border-radius:50%;background:var(--acc);display:grid;place-items:center;transition:transform .15s}
+.vid:hover .play{transform:scale(1.08)}
+.play::after{content:"";border-left:20px solid var(--onacc);border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:5px}
+.vid .tag{position:absolute;left:14px;bottom:14px;background:var(--ink);color:#fff;font:700 15px var(--hd);padding:8px 16px;border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.28)}
+.band{background:var(--acc);color:var(--onacc);border-radius:24px;padding:36px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.band h2{margin:0}.band .btn{background:var(--onacc);color:var(--acc)}
+footer{padding:30px 0 50px;color:var(--mut);font-size:14px;margin-top:30px;border-top:1px solid var(--line)}
+dialog{border:0;border-radius:22px;padding:0;width:calc(100% - 32px);max-width:440px;max-height:calc(100% - 32px);overflow:auto;background:var(--card);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+dialog#reg{max-width:720px}
+dialog.wide{width:auto;min-width:min(320px,calc(100% - 32px));max-width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(8,8,12,.65)}
+.dlg{padding:28px;position:relative}
+.x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:var(--bg);color:var(--ink);font-size:20px;cursor:pointer;line-height:1}
+.dlg h3{font:700 28px var(--hd);letter-spacing:-.03em;margin:0 0 4px}
+form{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;margin-top:18px}
+form .full{grid-column:1/-1}
+label{font-weight:600;font-size:14px;display:grid;gap:6px;align-content:start}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;width:100%}
+select{appearance:auto;cursor:pointer}
+input[disabled]{opacity:.7;cursor:not-allowed}
+.err{color:#c0392b;font-size:14px;min-height:1.2em;margin:0}
+.chip{display:inline-block;background:var(--c);color:#14140f;font:700 12px var(--hd);padding:4px 12px;border-radius:99px;letter-spacing:.08em;text-transform:uppercase}
+.res{text-align:center;max-width:420px;margin:0 auto}.res h3{font-size:40px;margin:.3em 0 .1em}.res p{color:var(--mut);margin:0 0 18px}
+.qr{display:inline-block;background:#fff;padding:12px;border-radius:14px;line-height:0;margin:18px 0 6px;border:1px solid var(--line)}
+.res small{display:block;color:var(--mut)}
+.vf{background:#000;border-radius:14px;overflow:hidden;display:flex;justify-content:center;align-items:center;color:#fff;text-align:center}
+.vf video{display:block;width:auto;height:auto;max-width:100%;max-height:75vh;max-height:75dvh;background:#000}
+
+/* ---------- Mobile ---------- */
+@media (max-width:760px){
+ .wrap{padding:0 16px}
+ html{scroll-padding-top:76px}
+ nav{height:68px}
+ nav .links{gap:12px}
+ nav .links a.hide{display:none}
+ .logo img{height:48px}
+ .btn{font-size:15px;padding:12px 20px;border-radius:11px}
+ .btn.sm{padding:9px 15px;font-size:14px}
+ .hero{grid-template-columns:1fr;gap:26px;padding:24px 0 20px}
+ .pic{order:-1;max-width:340px;margin:0 auto;width:100%}
+ .pic::before{inset:14px -8px -8px 14px;border-radius:22px}
+ .pic img{border-radius:22px}
+ .pic .tag{left:8px;bottom:18px;font-size:12px;padding:8px 12px}
+ .eyebrow{font-size:11px}
+ h1{font-size:clamp(34px,10.5vw,46px);line-height:1}
+ .lead{font-size:15.5px;margin-bottom:18px}
+ .cta{gap:10px}
+ .cta .btn{flex:1 1 auto;text-align:center}
+ .myteam{gap:12px;padding:10px 14px 10px 10px;border-radius:16px}
+ .myteam .lg{width:60px}
+ .myteam .n{font-size:24px}
+ section{padding:28px 0}
+ h2{font-size:clamp(24px,7vw,30px)}
+ .sub{font-size:14px;margin-bottom:16px}
+ /* team logos: continuous flowing marquee, no indicators */
+ .tshow{display:block;overflow:hidden;padding:14px 0 18px;margin:0 -16px}
+ .ttrack{display:flex;width:max-content;animation:marq 16s linear infinite;will-change:transform}
+ .tshow:active .ttrack{animation-play-state:paused}
+ .tshow .lg,.tshow .dup{display:grid;flex:0 0 auto;width:max(120px,calc(26vw - 24px));margin:0 12px}
+ .tshow .rv,.tshow .rv.r{opacity:1;transform:none;transition:none}
+ .lg.rl{width:130px}
+ /* games */
+ .gc{padding:20px;min-height:220px;border-radius:20px}
+ .gc .gi{width:84px;height:84px;font-size:60px}
+ .gc h3{font-size:21px;margin:16px 0 6px}
+ .gc p{font-size:14px;line-height:1.5}
+ .vid .tag{font-size:13px;padding:6px 12px;left:10px;bottom:10px}
+ .play{width:54px;height:54px}
+ .band{padding:24px 20px;border-radius:20px}
+ .band h2{font-size:24px}
+ .band div{font-size:14px}
+ .band .btn{width:100%;text-align:center}
+ footer{padding:22px 0 40px;margin-top:16px}
+ /* form */
+ form{grid-template-columns:1fr}
+ .dlg{padding:22px 18px}
+ .dlg h3{font-size:24px}
+ .res h3{font-size:32px}
+}
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}*{transition:none!important}.rv{opacity:1!important;transform:none!important}
+ @media (max-width:760px){.tshow{overflow-x:auto;scrollbar-width:none}.tshow::-webkit-scrollbar{display:none}.ttrack{animation:none}.tshow .dup{display:none}}
+}
+</style></head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<header class="top"><div class="wrap"><nav><span class="logo"><img src="logo.png" alt="Bolt" onerror="this.outerHTML='&lt;b&gt;⚡&lt;/b&gt;Bolt'"></span><span class="links"><a class="hide" href="#games">Games</a><a class="hide" href="#editions">Past events</a><button class="btn sm" id="navreg" data-reg type="button">Register</button></span></nav></div></header>
+<main class="wrap">
+<div class="hero"><div><div class="eyebrow">Game day</div>
+<h1>4 teams.<br>1 <mark>winner.</mark></h1>
+<p class="lead">A fun, friendly game day. Meet new people, play your heart out and cheer your team all the way to the top.</p>
+<div class="cta"><button class="btn" data-reg type="button">Register now</button><a class="btn ghost" href="#editions">Watch past events</a></div>
+<div class="myteam" id="myteam" hidden></div></div>
+<div class="pic"><!-- Replace this src with your original data:image/jpeg;base64,... value, or keep img/hero.png --><img src="img/hero.png" alt="Friends cheering and playing a video game together"><span class="tag">⚡ Game on</span></div></div>
+
+<section id="teams"><h2>The four teams</h2><p class="sub">Four teams. One champion.</p><div class="tshow" id="tshow"></div></section>
+
+<section id="games"><h2>The games</h2><p class="sub">Here’s what the teams will be battling it out in.</p><div class="games" id="games-list"></div></section>
+
+<section id="editions"><h2>Sneak peek into past events</h2><p class="sub">Relive the best moments from earlier Bolt events.</p><div class="vids" id="vids"></div></section>
+
+<!-- SPONSORS (hidden for now: remove this comment wrapper and the matching one in the script to bring it back)
+<section id="sponsors"><div class="shead"><div><h2>Our sponsors</h2><p class="sub" style="margin:0">The people who make Bolt possible.</p></div><div class="sp-nav"><button type="button" id="sp-prev" aria-label="Previous sponsors">‹</button><button type="button" id="sp-next" aria-label="Next sponsors">›</button></div></div><div class="sp-track" id="sp-track" role="region" aria-label="Sponsors" tabindex="0"></div></section>
+-->
+
+<section><div class="band"><div><h2>Ready to play?</h2><div>Sign up and get your team in seconds.</div></div><button class="btn" data-reg type="button">Register</button></div></section>
+<footer>Bolt</footer></main>
+
+<dialog id="reg" aria-labelledby="rt"><div class="dlg">
+<button class="x" data-close type="button" aria-label="Close">×</button>
+<div id="regform"><h3 id="rt">Join Bolt</h3><div style="color:var(--mut)">Tell us a bit about you and we’ll get you set up.</div>
+<form id="form" novalidate>
+<label>Full name<input id="name" autocomplete="name" maxlength="80" required></label>
+<label>Phone number<input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0801 234 5678" required></label>
+<label>Email address<input id="email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="you@example.com" required></label>
+<label>Faculty<input id="faculty" maxlength="80" placeholder="e.g. Science" required></label>
+<label>Level<select id="level" required><option value="">Select your level</option><option>100 Level</option><option>200 Level</option><option>300 Level</option><option>400 Level</option><option>500 Level</option><option>600 Level</option></select></label>
+<label>Hostel / Off-campus area<input id="hostel" maxlength="100" placeholder="e.g. Hall 3, or Off-campus: Yaba" required></label>
+<label>Event of interest<select id="event" required><option value="">Select an event</option><option>Athletics</option><option>Football</option><option>Dance</option><option>Presentation</option><option>Support</option></select></label>
+<label>How did you hear about Bolt?<select id="heard" required><option value="">Select one</option><option>Flyer</option><option>Social media</option><option>From a friend</option><option>WhatsApp group</option></select></label>
+<label>Emergency contact name<input id="emname" autocomplete="off" maxlength="80" placeholder="e.g. Mrs Ada" required></label>
+<label>Emergency contact phone<input id="emphone" type="tel" inputmode="tel" autocomplete="off" placeholder="0803 456 7890" required></label>
+<p class="err full" id="err" role="alert"></p>
+<button class="btn full" id="go" type="submit">Register</button></form></div>
+<div id="result" class="res" hidden></div></div></dialog>
+
+<dialog id="vd" class="wide" aria-label="Video"><div class="dlg"><button class="x" data-close type="button" aria-label="Close">×</button><h3 id="vt" style="margin-bottom:14px"></h3><div class="vf" id="vf"></div></div></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){"use strict";
+/* Paste your Apps Script web-app URL here. Empty = demo mode (data stays in this browser only). */
+var API="https://script.google.com/macros/s/AKfycbzZkVaMDMpBmWAmZEW-5TQ5nuMfoGM7OVl-NaMFQsvnPWiduZqNiBTJxSWi4D2iCX4i/exec";
+var TEAMS=[
+ {n:"Raptors",c:"#9ca3af",e:"🦖",logo:"img/Raptors-logo-1.png",wa:"https://chat.whatsapp.com/JhY8bkpffaTI8xrBpm71nV?s=sw&p=i&mlu=4&ilr=4&iam=2"},
+ {n:"Sharks",c:"#38bdf8",e:"🦈",logo:"img/Shark-logo.png",wa:"https://chat.whatsapp.com/FcMtCSPgKmUKgycPecs7mF?s=sw&p=i&mlu=4&ilr=4&iam=2"},
+ {n:"Jaguars",c:"#f59e0b",e:"🐆",logo:"img/Jaguar-logo.png",wa:"https://chat.whatsapp.com/CaXEozjMvvv9Uit6hhX118?s=sw&p=i&mlu=4&ilr=4&iam=2"},
+ {n:"Gators",c:"#22c55e",e:"🐊",logo:"img/gator-logo.png",wa:"https://chat.whatsapp.com/LHrB8lp5D6p4cPBXaPHzD8?s=sw&p=i&mlu=4&ilr=4&iam=2"}];
+/* Games: pictures are looked up in img/games/. Past-event videos: put bolt1.mp4 to bolt4.mp4 next to this page. */
+var GAMES=[
+ {n:"Football",e:"⚽",f:"football",d:"Fast-paced matches where team coordination meets individual flair. Show the crowd what your squad is made of."},
+ {n:"Volleyball",e:"🏐",f:"volleyball",d:"Spike, set and serve your way to the top. Quick reflexes and real teamwork win the rally."},
+ {n:"Basketball",e:"🏀",f:"basketball",d:"Fast runs to settle the score. Who has the handles, the hops and the heart to take the win?"},
+ {n:"Chess",e:"♟️",f:"chess",d:"Think three moves ahead and outmaneuver your opponent in this timeless game of strategy."},
+ {n:"Board Games",e:"🎲",f:"board-games",d:"Classic titles and chaotic fun, from Ludo to Scrabble. Wits and luck are both welcome."},
+ {n:"PlayStation",e:"🎮",f:"playstation",d:"Controllers in hand and bragging rights on the line. Head-to-head battles crown the digital champion."}];
+var VIDEOS=["bolt1.mp4","bolt2.mp4","bolt3.mp4","bolt4.mp4"];
+var $=function(s){return document.querySelector(s)};
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+GAMES.forEach(function(g){var c=el("article","gc");var im=el("div","gi");var i=new Image();i.alt="";i.onerror=function(){im.innerHTML="";im.textContent=g.e;im.setAttribute("aria-hidden","true")};i.src="img/games/"+g.f+".png";im.appendChild(i);c.appendChild(im);c.appendChild(el("h3",null,esc(g.n)));c.appendChild(el("p",null,esc(g.d)));$("#games-list").appendChild(c)});
+
+/* SPONSORS script (hidden for now: remove this comment wrapper to bring it back)
+var SPONSORS=[1,2,3,4,5,6,7,8].map(function(k){return{n:"Sponsor "+k,logo:"img/sponsors/sponsor-"+k+".png",url:""}});
+var st=$("#sp-track"),sec=$("#sponsors");
+SPONSORS.forEach(function(sp){var a=el(sp.url?"a":"div","sp");if(sp.url){a.href=sp.url;a.target="_blank";a.rel="noopener"}
+ var i=new Image();i.alt=sp.n;i.onerror=function(){a.innerHTML="";a.appendChild(el("span",null,esc(sp.n)))};i.src=sp.logo;a.appendChild(i);st.appendChild(a)});
+function step(d){var w=st.firstElementChild?st.firstElementChild.offsetWidth+16:300,max=st.scrollWidth-st.clientWidth;
+ if(d>0&&st.scrollLeft>=max-4)st.scrollTo({left:0,behavior:"smooth"});else if(d<0&&st.scrollLeft<=4)st.scrollTo({left:max,behavior:"smooth"});else st.scrollBy({left:d*w,behavior:"smooth"})}
+$("#sp-prev").onclick=function(){step(-1)};$("#sp-next").onclick=function(){step(1)};
+var tmr=null,still=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+function play(){if(still||tmr)return;tmr=setInterval(function(){step(1)},3200)}function halt(){clearInterval(tmr);tmr=null}
+["mouseenter","focusin","touchstart"].forEach(function(ev){sec.addEventListener(ev,halt,{passive:true})});
+["mouseleave","focusout"].forEach(function(ev){sec.addEventListener(ev,play)});
+sec.addEventListener("touchend",function(){setTimeout(play,4000)});
+play();
+*/
+
+/* Team logos: put each logo PNG in an img folder next to this page, named as in TEAMS (logo:). */
+function logoEl(t){var w=el("div","lg");var i=new Image();i.alt=t.n;i.onerror=function(){w.innerHTML="";w.textContent=t.e;w.classList.add("em")};i.src=t.logo;w.appendChild(i);return w}
+var io=("IntersectionObserver" in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.15}):{observe:function(n){n.classList.add("in")}};
+var ts=$("#tshow");
+/* Desktop: plain grid of the 4 logos. Mobile: continuous marquee (logos + a duplicate set). */
+var myTeam=null,mqT=window.matchMedia("(max-width:760px)");
+function markMine(){document.querySelectorAll("#tshow .lg").forEach(function(d){d.classList.toggle("me",!!myTeam&&d.getAttribute("data-team")===myTeam)})}
+function panels(){
+ var mobile=mqT.matches,host=ts;
+ ts.innerHTML="";
+ if(mobile){host=el("div","ttrack");ts.appendChild(host)}
+ TEAMS.forEach(function(t,k){var d=logoEl(t);d.setAttribute("data-team",t.n);d.style.setProperty("--c",t.c);
+  if(!mobile){d.classList.add("rv");if(k%2)d.classList.add("r");d.style.transitionDelay=(k*.12)+"s";io.observe(d)}
+  host.appendChild(d)});
+ if(mobile)TEAMS.forEach(function(t){var d=logoEl(t);d.classList.add("dup");d.setAttribute("aria-hidden","true");d.setAttribute("data-team",t.n);d.style.setProperty("--c",t.c);host.appendChild(d)});
+ markMine();
+ /* safety net: never leave a logo hidden */
+ setTimeout(function(){document.querySelectorAll("#tshow .rv").forEach(function(d){d.classList.add("in")})},2000)}
+panels();
+if(mqT.addEventListener)mqT.addEventListener("change",panels);else if(mqT.addListener)mqT.addListener(panels);
+
+var vd=$("#vd");
+VIDEOS.forEach(function(src,k){var b=el("button","vid");b.type="button";b.setAttribute("aria-label","Watch recap "+(k+1));
+ b.innerHTML='<div class="th"><video src="'+src+'#t=0.5" preload="metadata" muted playsinline aria-hidden="true" tabindex="-1"></video><span class="play"></span><span class="tag">Watch recap</span></div>';
+ b.onclick=function(){$("#vt").textContent="Bolt "+(k+1)+" recap";var f=$("#vf");f.innerHTML="";
+  var v=document.createElement("video");v.controls=true;v.autoplay=true;v.playsInline=true;v.src=src;
+  v.onerror=function(){f.textContent="This video isn\u2019t available yet."};
+  f.appendChild(v);vd.showModal()};
+ $("#vids").appendChild(b)});
+
+var reg=$("#reg");
+document.querySelectorAll("[data-reg]").forEach(function(b){b.addEventListener("click",function(){reg.showModal();setTimeout(function(){var n=$("#name");if(n&&!$("#regform").hidden)n.focus()},50)})});
+document.querySelectorAll("[data-close]").forEach(function(b){b.addEventListener("click",function(){b.closest("dialog").close()})});
+[reg,vd].forEach(function(d){d.addEventListener("click",function(e){if(e.target===d)d.close()})});
+vd.addEventListener("close",function(){var v=$("#vf video");if(v){v.pause();v.removeAttribute("src");v.load()}$("#vf").innerHTML=""});
+
+function normPhone(p){var d=String(p).replace(/\D/g,"");if(d.indexOf("234")===0&&d.length===13)d=d.slice(3);if(d.length===10)d="0"+d;return /^0[789]\d{9}$/.test(d)?d:""}
+
+/* Demo mode only (API empty): balanced random assignment kept in this browser. */
+function localAssign(data){
+ var rows=[];try{rows=JSON.parse(localStorage.getItem("bolt_rows")||"[]")}catch(e){}
+ var ex=rows.filter(function(r){return r.phone===data.phone||r.email===data.email})[0];if(ex)return ex.team;
+ var counts=TEAMS.map(function(t){return{t:t.n,k:rows.filter(function(r){return r.team===t.n}).length}});
+ var min=Math.min.apply(null,counts.map(function(c){return c.k}));
+ var pool=counts.filter(function(c){return c.k===min});
+ var team=pool[Math.floor(Math.random()*pool.length)].t;
+ var row={};for(var k in data)row[k]=data[k];row.team=team;rows.push(row);
+ try{localStorage.setItem("bolt_rows",JSON.stringify(rows))}catch(e){}
+ return team}
+/* With API set: the Google Sheet script saves the row and picks the team (fewest members wins). */
+function assign(data){
+ if(!API)return new Promise(function(r){setTimeout(function(){r(localAssign(data))},500)});
+ return fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)})
+  .then(function(r){return r.json()}).then(function(j){if(!j.team)throw new Error(j.error||"No team");return j.team})}
+
+/* Show the team on the page itself (hero card + highlight in the teams section) */
+function pageTeam(name,t){
+ var box=$("#myteam");box.hidden=false;box.style.setProperty("--c",t.c);box.innerHTML="";
+ var lg=logoEl(t);box.appendChild(lg);
+ var mt=el("div","mt",'<div class="k">Your team</div><div class="n">'+esc(t.n)+'</div><a class="btn sm" href="'+esc(t.wa)+'" target="_blank" rel="noopener">Join WhatsApp group</a>');
+ box.appendChild(mt);
+ myTeam=t.n;markMine();
+ $("#navreg").textContent="My team"}
+
+function show(name,tn){
+ var t=TEAMS.filter(function(x){return x.n===tn})[0];if(!t)return;
+ $("#regform").hidden=true;var box=$("#result");box.hidden=false;box.innerHTML="";
+ box.innerHTML='<span class="chip" style="--c:'+t.c+'">You’re in</span><div id="rlogo"></div><p>Welcome, '+esc(name.split(" ")[0])+'! You’re on team <b>'+esc(t.n)+'</b>. Join your team’s WhatsApp group.</p><a class="btn" href="'+esc(t.wa)+'" target="_blank" rel="noopener">Join WhatsApp group</a><div><div class="qr" id="qr"></div></div><small>Or scan the code to join</small>';
+ var rl=logoEl(t);rl.classList.add("rl");$("#rlogo").appendChild(rl);
+ if(typeof QRCode!=="undefined")new QRCode($("#qr"),{text:t.wa,width:150,height:150,colorDark:"#000000",colorLight:"#ffffff"});else $("#qr").parentNode.hidden=true;
+ pageTeam(name,t);
+ try{localStorage.setItem("bolt_me",JSON.stringify({n:name,t:tn}))}catch(e){}}
+
+$("#form").addEventListener("submit",function(e){
+ e.preventDefault();var err=$("#err");err.textContent="";
+ var data={
+  name:$("#name").value.trim().replace(/\s+/g," "),
+  phone:normPhone($("#phone").value),
+  email:$("#email").value.trim().toLowerCase(),
+  faculty:$("#faculty").value.trim(),
+  level:$("#level").value,
+  hostel:$("#hostel").value.trim(),
+  event:$("#event").value,
+  emergencyName:$("#emname").value.trim().replace(/\s+/g," "),
+  emergencyPhone:normPhone($("#emphone").value),
+  heard:$("#heard").value};
+ if(data.name.length<2){err.textContent="Please enter your full name.";return}
+ if(!data.phone){err.textContent="Please enter a valid Nigerian phone number.";return}
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email)){err.textContent="Please enter a valid email address.";return}
+ if(data.faculty.length<2){err.textContent="Please enter your faculty.";return}
+ if(!data.level){err.textContent="Please select your level.";return}
+ if(data.hostel.length<2){err.textContent="Please enter your hostel or off-campus area.";return}
+ if(!data.event){err.textContent="Please select an event of interest.";return}
+ if(!data.heard){err.textContent="Please tell us how you heard about Bolt.";return}
+ if(data.emergencyName.length<2){err.textContent="Please enter your emergency contact's name.";return}
+ if(!data.emergencyPhone){err.textContent="Please enter a valid phone number for your emergency contact.";return}
+ var b=$("#go");b.disabled=true;b.textContent="Registering…";
+ assign(data).then(function(t){show(data.name,t)}).catch(function(){err.textContent="Something went wrong. Please try again."})
+ .then(function(){b.disabled=false;b.textContent="Register"})});
+try{var me=JSON.parse(localStorage.getItem("bolt_me")||"null");if(me)show(me.n,me.t)}catch(e){}
+/* Hero picture: if img/hero.png exists it replaces the built-in photo. */
+var hi=$(".pic img"),ht=new Image();ht.onload=function(){hi.src="img/hero.png"};ht.src="img/hero.png";
+/* interactive background: drifting team-colour shapes that scatter from the pointer */
+(function(){var c=$("#bg"),x=c.getContext("2d"),P=[],m={x:-999,y:-999},W,H,dpr=Math.min(window.devicePixelRatio||1,2),cols=["#ffd400","#ff6b3d","#3ddc97","#5aa9ff"],rm=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+function mk(){var bx=(Math.random()-.5)*.5,by=(Math.random()-.5)*.5;return{x:Math.random()*W,y:Math.random()*H,vx:bx,vy:by,bx:bx,by:by,r:14+Math.random()*34,c:cols[Math.random()*4|0],b:Math.random()<.4,a:Math.random()*6.28,s:(Math.random()-.5)*.012}}
+function size(){W=window.innerWidth;H=window.innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);var n=Math.round(Math.min(46,W*H/24000));while(P.length<n)P.push(mk());P.length=n;if(rm)draw()}
+function bolt(r){x.beginPath();x.moveTo(.2*r,-r);x.lineTo(-.6*r,.15*r);x.lineTo(-.05*r,.15*r);x.lineTo(-.25*r,r);x.lineTo(.65*r,-.2*r);x.lineTo(.1*r,-.2*r);x.closePath()}
+function draw(){x.clearRect(0,0,W,H);
+ if(m.x>0){var g=x.createRadialGradient(m.x,m.y,0,m.x,m.y,160);g.addColorStop(0,"rgba(255,212,0,.35)");g.addColorStop(1,"rgba(255,212,0,0)");x.fillStyle=g;x.fillRect(m.x-160,m.y-160,320,320)}
+ P.forEach(function(p){
+  if(!rm){var dx=p.x-m.x,dy=p.y-m.y,d=Math.sqrt(dx*dx+dy*dy)||1;if(d<170){var f=(170-d)/170;p.vx+=dx/d*f*.9;p.vy+=dy/d*f*.9}
+   p.vx+=(p.bx-p.vx)*.03;p.vy+=(p.by-p.vy)*.03;p.x+=p.vx;p.y+=p.vy;p.a+=p.s;
+   if(p.x<-60)p.x=W+60;if(p.x>W+60)p.x=-60;if(p.y<-60)p.y=H+60;if(p.y>H+60)p.y=-60}
+  x.save();x.translate(p.x,p.y);x.rotate(p.a);x.globalAlpha=.4;x.fillStyle=p.c;
+  if(p.b){bolt(p.r)}else{x.beginPath();x.arc(0,0,p.r*.6,0,6.283)}
+  x.fill();x.restore()});
+ if(!rm)requestAnimationFrame(draw)}
+window.addEventListener("pointermove",function(e){m.x=e.clientX;m.y=e.clientY},{passive:true});
+window.addEventListener("pointerleave",function(){m.x=-999});
+window.addEventListener("touchend",function(){m.x=-999});
+window.addEventListener("resize",size);size();if(!rm)draw()})();
+})();
+</script></body></html>
