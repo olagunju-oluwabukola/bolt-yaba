@@ -244,7 +244,7 @@ sec.addEventListener("touchend",function(){setTimeout(play,4000)});
 play();
 */
 
-/* Team logos: put each logo PNG in an img folder next to this page, named as in TEAMS (logo:). */
+
 function logoEl(t){var w=el("div","lg");var i=new Image();i.alt=t.n;i.onerror=function(){w.innerHTML="";w.textContent=t.e;w.classList.add("em")};i.src=t.logo;w.appendChild(i);return w}
 var io=("IntersectionObserver" in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.15}):{observe:function(n){n.classList.add("in")}};
 var ts=$("#tshow");
