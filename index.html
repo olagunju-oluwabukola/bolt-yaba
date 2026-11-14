@@ -201,8 +201,9 @@ input[disabled]{opacity:.7;cursor:not-allowed}
 <label>Phone number<input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0801 234 5678" required></label>
 <label>Email address<input id="email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="you@example.com" required></label>
 <label>Faculty<input id="faculty" maxlength="80" placeholder="e.g. Science" required></label>
+<label>Department<input id="department" maxlength="80" placeholder="e.g. Computer Science" required></label>
 <label>Level<select id="level" required><option value="">Select your level</option><option>100 Level</option><option>200 Level</option><option>300 Level</option><option>400 Level</option><option>500 Level</option><option>600 Level</option></select></label>
-<label>Hostel / Off-campus area<input id="hostel" maxlength="100" placeholder="e.g. Hall 3, or Off-campus: Yaba" required></label>
+<label class="full">Hostel / Off-campus area<input id="hostel" maxlength="100" placeholder="e.g.Moremi Hall or 20,Iwaya" required></label>
 <fieldset class="chk full"><legend>Events of interest <span class="hint">(select all that apply)</span></legend><div class="opts" id="eventopts">
 <label class="opt"><input type="checkbox" value="Football">Football</label>
 <label class="opt"><input type="checkbox" value="100 Meters Race">100 Meters Race</label>
@@ -345,6 +346,7 @@ $("#form").addEventListener("submit",function(e){
   phone:normPhone($("#phone").value),
   email:$("#email").value.trim().toLowerCase(),
   faculty:$("#faculty").value.trim(),
+  department:$("#department").value.trim(),
   level:$("#level").value,
   hostel:$("#hostel").value.trim(),
   event:Array.prototype.map.call(document.querySelectorAll("#eventopts input:checked"),function(c){return c.value}).join(", "),
@@ -353,6 +355,7 @@ $("#form").addEventListener("submit",function(e){
  if(!data.phone){err.textContent="Please enter a valid Nigerian phone number.";return}
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email)){err.textContent="Please enter a valid email address.";return}
  if(data.faculty.length<2){err.textContent="Please enter your faculty.";return}
+ if(data.department.length<2){err.textContent="Please enter your department.";return}
  if(!data.level){err.textContent="Please select your level.";return}
  if(data.hostel.length<2){err.textContent="Please enter your hostel or off-campus area.";return}
  if(!data.event){err.textContent="Please select at least one event.";return}
